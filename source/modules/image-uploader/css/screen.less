@@ -1,6 +1,20 @@
 .drop-zone {
+	.border(@lightGray; 2px; dashed);
+	.height(20);
+	.max-width(40);
+	.relative();
+	&:hover {
+		.cursor();
+	}
 	&.-hover {
-		.border(@gray);
+		.background-color(@lightGray);
+		.white();
+	}
+	&__text {
+		.absolute(50%; 0; false; 0);
+		.align(center);
+		.font-weight(@baseFontWeightLight);
+		.translate(y; -25%);
 	}
 }
 .upload {

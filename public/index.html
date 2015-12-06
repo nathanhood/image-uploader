@@ -42,8 +42,10 @@
 
 			<div data-ref="uploadNotify"></div>
 			<form action="upload.php" method="POST" enctype="multipart/form-data" class="upload">
-				<div class="drop-zone" data-ref="dropZone">or drop files here</div>
-				<button type="submit" class="upload__submit">Upload Files</button>
+				<div class="drop-zone" data-ref="dropZone">
+					<div class="drop-zone__text">Drop files here or click to upload</div>
+				</div>
+				<button type="submit" class="upload__submit" data-ref="uploadFiles">Upload Files</button>
 			</form>
 
 			<div data-ref="uploadDetails">

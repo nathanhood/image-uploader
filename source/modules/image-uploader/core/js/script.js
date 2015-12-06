@@ -101,7 +101,7 @@ Wee.fn.make('upload', {
 
 		// Validate image size
 		if (file.size > this.conf.maxFileSize) {
-			return 'File is too large. Maximimum file size is ' + this.maxFileSize / 1000 + 'Mb';
+			return 'File is too large. Maximimum file size is ' + this.conf.maxFileSize / 1000 + 'Kb';
 		}
 
 		return true;
