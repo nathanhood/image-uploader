@@ -9,12 +9,7 @@ Wee.fn.make('upload', {
 		this.$private.conf = conf;
 
 		Wee.events.on({
-			'ref:fileSelect': {
-				change: function() {
-					console.log('change fileselect');
-				}
-			},
-			'ref:fileDrag': {
+			'ref:dropZone': {
 				dragover: this.$private.hoverDropZone,
 				dragleave: this.$private.leaveDropZone,
 				drop: this.$private.dropFile
@@ -22,15 +17,24 @@ Wee.fn.make('upload', {
 		});
 	}
 }, {
+	_construct: function() {
+		this.$dropZone = $('ref:dropZone');
+	},
 	hoverDropZone: function(e) {
-		$('ref:fileDrag').addClass('-hover');
+		var scope = Wee.upload.$private;
+
+		if (! scope.$dropZone.hasClass('-hover')) {
+			scope.$dropZone.addClass('-hover');
+		}
 
 		// Stop default behaviors for file drag and drop
 		e.stopPropagation();
 		e.preventDefault();
 	},
 	leaveDropZone: function() {
-		$('ref:fileDrag').removeClass('-hover');
+		var scope = Wee.upload.$private;
+
+		scope.$dropZone.removeClass('-hover');
 	},
 	dropFile: function(e) {
 		var scope = Wee.upload.$private,
@@ -73,6 +77,7 @@ Wee.fn.make('upload', {
 		image.dataset.ref = 'uploadedImage';
 
 		image.onload = function() {
+			// TODO: May want to consolidate all validation together
 			var isValid = scope.validateDimensions(this.width, this.height);
 
 			if (isValid === true) {
