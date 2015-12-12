@@ -12,12 +12,14 @@
 		"build": [
 			"css/variables.less",
 			"css/screen.less",
-			"css/vendor/darkroom.css"
+			"css/vendor/darkroom.less"
 		]
 	},
 	"script": {
 		"build": [
-			"js/script.js"
+			"js/script.js",
+			"js/vendor/fabric.js",
+			"js/vendor/darkroom.js"
 		]
 	},
 	"dependencies": {
