@@ -1,13 +1,17 @@
-Wee.fn.make('upload', {
+Wee.fn.extend('upload', {
 	init: function(options) {
 		var conf = Wee.$extend({
-			maxFileSize: 300000,
+			maxFileSize: 3,
+			maxFileSizeUnit: 'mb',
 			minImageHeight: 300,
 			minImageWidth: 300
 		}, options);
 
 		this.$private.conf = conf;
 
+		this.$private.buildMarkup();
+
+		// Bind all events
 		Wee.events.on({
 			'ref:dropZone': {
 				dragover: this.$private.hoverDropZone,
@@ -23,13 +27,11 @@ Wee.fn.make('upload', {
 	hoverDropZone: function(e) {
 		var scope = Wee.upload.$private;
 
-		if (! scope.$dropZone.hasClass('-hover')) {
-			scope.$dropZone.addClass('-hover');
-		}
-
 		// Stop default behaviors for file drag and drop
 		e.stopPropagation();
 		e.preventDefault();
+
+		scope.$dropZone.addClass('-hover');
 	},
 	leaveDropZone: function() {
 		var scope = Wee.upload.$private;
@@ -53,7 +55,7 @@ Wee.fn.make('upload', {
 		}
 	},
 	parseFile: function(file) {
-		var isValid = this.validateImage(file),
+		var isValid = this.validateType(file),
 			reader;
 
 		// Ensure that file is an image
@@ -92,28 +94,5 @@ Wee.fn.make('upload', {
 	notify: function(message) {
 		// TODO: Set styling classes based on success or failure (type) boolean
 		$('ref:uploadNotify').text(message);
-	},
-	validateImage: function(file) {
-		// Validate file type
-		if (file.type.indexOf('image') === -1) {
-			return 'File is not an image.';
-		}
-
-		// Validate image size
-		if (file.size > this.conf.maxFileSize) {
-			return 'File is too large. Maximimum file size is ' + this.conf.maxFileSize / 1000 + 'Kb';
-		}
-
-		return true;
-	},
-	validateDimensions: function(width, height) {
-		var minHeight = this.conf.minImageHeight,
-			minWidth = this.conf.minImageWidth;
-
-		if (width < minWidth || height < minHeight) {
-			return 'Image must be at least ' + minWidth + ' x ' + minHeight + ' pixels';
-		}
-
-		return true;
 	}
 });
