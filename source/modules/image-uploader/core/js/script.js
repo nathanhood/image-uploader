@@ -9,8 +9,6 @@ Wee.fn.extend('upload', {
 
 		this.$private.conf = conf;
 
-		this.$private.buildMarkup();
-
 		// Bind all events
 		Wee.events.on({
 			'ref:dropZone': {
