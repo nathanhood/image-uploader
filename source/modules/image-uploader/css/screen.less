@@ -4,7 +4,12 @@
 	.max-width(40);
 	.relative();
 	&:hover {
+		.background-color(@lightestGray);
+		.border(@black; 2px);
 		.cursor();
+	}
+	&:active {
+		.background-color(@lighterGray);
 	}
 	&.-hover {
 		.background-color(@lightestGray);

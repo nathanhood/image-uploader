@@ -9,5 +9,9 @@ Wee.fn.extend('upload', {}, {
 		}
 
 		return value;
+	},
+	notify: function(message) {
+		// TODO: Set styling classes based on success or failure (type) boolean
+		$('ref:uploadNotify').text(message);
 	}
 });

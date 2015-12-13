@@ -4,7 +4,8 @@ Wee.fn.extend('upload', {
 			maxFileSize: 3,
 			maxFileSizeUnit: 'mb',
 			minImageHeight: 300,
-			minImageWidth: 300
+			minImageWidth: 300,
+			$dropZone: $('ref:dropZone')
 		}, options);
 
 		this.$private.conf = conf;
@@ -14,14 +15,15 @@ Wee.fn.extend('upload', {
 			'ref:dropZone': {
 				dragover: this.$private.hoverDropZone,
 				dragleave: this.$private.leaveDropZone,
-				drop: this.$private.dropFile
+				drop: this.$private.load,
+				click: this.$private.openFileDialog
+			},
+			'ref:dropZoneInput': {
+				change: this.$private.load
 			}
 		});
 	}
 }, {
-	_construct: function() {
-		this.$dropZone = $('ref:dropZone');
-	},
 	hoverDropZone: function(e) {
 		var scope = Wee.upload.$private;
 
@@ -29,14 +31,14 @@ Wee.fn.extend('upload', {
 		e.stopPropagation();
 		e.preventDefault();
 
-		scope.$dropZone.addClass('-hover');
+		scope.conf.$dropZone.addClass('-hover');
 	},
 	leaveDropZone: function() {
 		var scope = Wee.upload.$private;
 
-		scope.$dropZone.removeClass('-hover');
+		scope.conf.$dropZone.removeClass('-hover');
 	},
-	dropFile: function(e) {
+	load: function(e) {
 		var scope = Wee.upload.$private,
 			files = e.target.files || e.dataTransfer.files;
 
@@ -89,8 +91,7 @@ Wee.fn.extend('upload', {
 
 		image.src = e.target.result;
 	},
-	notify: function(message) {
-		// TODO: Set styling classes based on success or failure (type) boolean
-		$('ref:uploadNotify').text(message);
+	openFileDialog: function() {
+		$(this).siblings('ref:dropZoneInput')[0].click();
 	}
 });
