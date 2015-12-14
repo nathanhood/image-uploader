@@ -1,29 +1,46 @@
+/* global Darkroom */
+
 Wee.fn.extend('upload', {
 	init: function(options) {
-		var conf = Wee.$extend({
+		var conf = Wee.$extend(true, {
 			maxFileSize: 3,
 			maxFileSizeUnit: 'mb',
 			minImageHeight: 300,
 			minImageWidth: 300,
-			$dropZone: $('ref:dropZone')
+			$dropZone: $('ref:dropZone'),
+			$cancelUpload: $('ref:cancelUpload'),
+			request: {
+				method: 'post',
+				processData: false,
+				type: false
+			}
 		}, options);
 
+		this.$private.image = {};
 		this.$private.conf = conf;
-
-		// Bind all events
-		Wee.events.on({
-			'ref:dropZone': {
-				dragover: this.$private.hoverDropZone,
-				dragleave: this.$private.leaveDropZone,
-				drop: this.$private.load,
-				click: this.$private.openFileDialog
-			},
-			'ref:dropZoneInput': {
-				change: this.$private.load
-			}
-		});
+		this.$private.validate = new Wee.fn.imageValidation();
+		this.$private.validate.init(conf);
+		this.$private.bindEvents();
 	}
 }, {
+	bindEvents: function() {
+		Wee.events.on({
+			'ref:dropZone': {
+				dragover: this.hoverDropZone,
+				dragleave: this.leaveDropZone,
+				drop: this.load,
+				click: this.openFileDialog
+			},
+			'ref:dropZoneInput': {
+				change: this.load
+			},
+			'ref:cancelUpload': {
+				click: this.destroyImage
+			}
+		});
+	},
+
+	// Event callbacks
 	hoverDropZone: function(e) {
 		var scope = Wee.upload.$private;
 
@@ -42,20 +59,36 @@ Wee.fn.extend('upload', {
 		var scope = Wee.upload.$private,
 			files = e.target.files || e.dataTransfer.files;
 
-		// Stop default behaviors for file drag and drop
+		// Stop browser from loading image as new url
 		e.stopPropagation();
 		e.preventDefault();
 
 		// Remove hover styling
 		scope.leaveDropZone();
 
-		// Process all File objects
-		for (var i = 0; i < files.length; i++) {
-			scope.parseFile(files[i]);
-		}
+		scope.image.file = files[0];
+		scope.parseFile(files[0]);
 	},
+	openFileDialog: function() {
+		$(this).siblings('ref:dropZoneInput')[0].click();
+	},
+	destroyImage: function() {
+		var scope = Wee.upload.$private,
+			$dropZone = scope.conf.$dropZone,
+			$cancel = scope.conf.$cancelUpload;
+
+		if (scope.editor) {
+			scope.editor.selfDestroy();
+		}
+
+		$dropZone.siblings('img').remove();
+		$dropZone.activate();
+		$cancel.deactivate();
+	},
+
+	// Image processing
 	parseFile: function(file) {
-		var isValid = this.validateType(file),
+		var isValid = this.validate.type(file),
 			reader;
 
 		// Ensure that file is an image
@@ -66,32 +99,84 @@ Wee.fn.extend('upload', {
 		}
 
 		reader = new FileReader();
-		reader.onload = this.fileReaderOnload;
-
-		// Load image
+		reader.onload = this.processImage;
 		reader.readAsDataURL(file);
 	},
-	fileReaderOnload: function(e) {
+	processImage: function(e) {
 		var scope = Wee.upload.$private,
+			fileSize = e.loaded,
 			image = new Image();
 
+		// Set properties on new image
 		image.className = 'upload__image';
 		image.dataset.ref = 'uploadedImage';
 
 		image.onload = function() {
-			// TODO: May want to consolidate all validation together
-			var isValid = scope.validateDimensions(this.width, this.height);
+			var isValid = scope.validateImage(fileSize, this.width, this.height);
 
-			if (isValid === true) {
-				$('ref:uploadDetails').append(this);
-			} else {
+			if (isValid !== true) {
+				// TODO: Clarify how error notifications should be implemented
 				scope.notify(isValid, 'error');
 			}
+
+			scope.image.width = this.width;
+			scope.image.height = this.height;
+
+			scope.initImageEditor(this);
 		};
 
+		// Load new image
 		image.src = e.target.result;
 	},
-	openFileDialog: function() {
-		$(this).siblings('ref:dropZoneInput')[0].click();
+	initImageEditor: function(image) {
+		var scope = this,
+			$dropZone = this.conf.$dropZone,
+			$cancel = this.conf.$cancelUpload;
+
+		// Hide drop zone/show cancel button
+		$dropZone.deactivate();
+		$dropZone.after(image);
+		$cancel.activate();
+
+		this.editor = new Darkroom(image, {
+			// Canvas initialization size
+			maxWidth: 500,
+			maxHeight: 500,
+			plugins: {
+				crop: {
+					// TODO: Calculate minWidth dimensions based on rendered width of canvas / minWidth config param
+					// TODO: Show actual pixel dimensions on corner of crop container?
+					minWidth: 50,
+					// TODO: Figure out how to modify ratio after initialization
+					ratio: 1
+				},
+				save: {
+					callback: function() {
+						// TODO: Finish save callback method
+						//this.darkroom.selfDestroy();
+						//console.log(this.darkroom.sourceImage.toDataURL());
+						//console.log(this.darkroom.containerElement);
+						//$.remove(this.darkroom.containerElement);
+
+						// TODO: Validate changes - min width
+						// TODO: How to post image over AJAX when submitted?
+						// TODO: Show preview size of image with loader showing progress
+						// TODO: Give ability to edit again?
+						scope.save();
+					}
+				}
+			}
+		});
+	},
+	save: function() {
+		var data = new FormData();
+
+		data.append('file-0', this.image.file);
+		data.append('width', this.image.width);
+		data.append('height', this.image.height);
+
+		this.conf.request.data = data;
+
+		Wee.data.request(this.conf.request);
 	}
 });
