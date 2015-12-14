@@ -1,4 +1,4 @@
-Wee.fn.make('imageValidation', {
+Wee.fn.make('imageUploadValidation', {
 	init: function(conf) {
 		this.conf = conf;
 	},

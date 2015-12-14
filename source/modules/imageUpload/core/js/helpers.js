@@ -1,4 +1,4 @@
-Wee.fn.extend('upload', {}, {
+Wee.fn.extend('imageUpload', {}, {
 	validateImage: function(size, width, height) {
 		var sizeIsValid = this.validate.fileSize(size),
 			dimIsValid = this.validate.dimensions(width, height);

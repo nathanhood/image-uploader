@@ -1,6 +1,6 @@
 /* global Darkroom */
 
-Wee.fn.extend('upload', {
+Wee.fn.extend('imageUpload', {
 	init: function(options) {
 		var conf = Wee.$extend(true, {
 			maxFileSize: 3,
@@ -12,13 +12,15 @@ Wee.fn.extend('upload', {
 			request: {
 				method: 'post',
 				processData: false,
-				type: false
+				headers: {
+					'Content-Type': false
+				}
 			}
 		}, options);
 
 		this.$private.image = {};
 		this.$private.conf = conf;
-		this.$private.validate = new Wee.fn.imageValidation();
+		this.$private.validate = new Wee.fn.imageUploadValidation();
 		this.$private.validate.init(conf);
 		this.$private.bindEvents();
 	}
@@ -42,7 +44,7 @@ Wee.fn.extend('upload', {
 
 	// Event callbacks
 	hoverDropZone: function(e) {
-		var scope = Wee.upload.$private;
+		var scope = Wee.imageUpload.$private;
 
 		// Stop default behaviors for file drag and drop
 		e.stopPropagation();
@@ -51,12 +53,12 @@ Wee.fn.extend('upload', {
 		scope.conf.$dropZone.addClass('-hover');
 	},
 	leaveDropZone: function() {
-		var scope = Wee.upload.$private;
+		var scope = Wee.imageUpload.$private;
 
 		scope.conf.$dropZone.removeClass('-hover');
 	},
 	load: function(e) {
-		var scope = Wee.upload.$private,
+		var scope = Wee.imageUpload.$private,
 			files = e.target.files || e.dataTransfer.files;
 
 		// Stop browser from loading image as new url
@@ -73,7 +75,7 @@ Wee.fn.extend('upload', {
 		$(this).siblings('ref:dropZoneInput')[0].click();
 	},
 	destroyImage: function() {
-		var scope = Wee.upload.$private,
+		var scope = Wee.imageUpload.$private,
 			$dropZone = scope.conf.$dropZone,
 			$cancel = scope.conf.$cancelUpload;
 
@@ -103,7 +105,7 @@ Wee.fn.extend('upload', {
 		reader.readAsDataURL(file);
 	},
 	processImage: function(e) {
-		var scope = Wee.upload.$private,
+		var scope = Wee.imageUpload.$private,
 			fileSize = e.loaded,
 			image = new Image();
 
