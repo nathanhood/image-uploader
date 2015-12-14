@@ -1,6 +1,7 @@
 .drop-zone {
 	.border(@black; 2px; dashed);
 	.height(20);
+	.hide();
 	.max-width(40);
 	.relative();
 	&:hover {
@@ -10,6 +11,9 @@
 	}
 	&:active {
 		.background-color(@lighterGray);
+	}
+	&.-is-active {
+		.show();
 	}
 	&.-hover {
 		.background-color(@lightestGray);
@@ -23,6 +27,22 @@
 	}
 }
 .upload {
+	&__cancel {
+		.font-size(1.4);
+		.hidden();
+		.inline-block();
+		.margin(top; 1);
+		&:hover {
+			.black();
+			.cursor();
+		}
+		&.-is-active {
+			.visible();
+		}
+	}
+	&__image {
+		.hide();
+	}
 	&__submit {
 		.hide();
 	}
