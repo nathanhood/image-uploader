@@ -4,7 +4,13 @@ Wee.routes.map({
 		Wee.upload.init({
 			maxFileSize: 10,
 			minImageHeight: 600,
-			minImageWidth: 600
+			minImageWidth: 600,
+			request: {
+				url: '/upload.php',
+				success: function(data) {
+					console.log(data);
+				}
+			}
 		});
 	}
 });
